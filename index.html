@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BCC Concierge · Find any club service in seconds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@500;700&family=Noto+Serif+Bengali:wght@500;700&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans:wght@400;600&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+SC:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2ed;--surface:#fff;--surface2:#e2eae4;--text:#10231c;--muted:#4b6258;--line:rgba(16,35,28,.14);
+  --ok:#0b7a5a;--warn:#9a6b0c;--bad:#c8321f;--gold:#9a6b0c;--btn:#c8321f;--btn-h:#a62716;--me:#0b6e52;
+  --serif:"Noto Serif Display","Noto Serif Bengali","Noto Serif SC",Georgia,serif;
+  --sans:"Noto Sans","Noto Sans Bengali","Noto Sans SC",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#0a1713;--surface:#11241d;--surface2:#183029;--text:#eaf0e8;--muted:#98b0a5;--line:rgba(255,255,255,.13);--ok:#37c597;--warn:#e8b04a;--bad:#ef5a45;--gold:#e8b04a}
+}
+:root[data-theme="dark"]{--bg:#0a1713;--surface:#11241d;--surface2:#183029;--text:#eaf0e8;--muted:#98b0a5;--line:rgba(255,255,255,.13);--ok:#37c597;--warn:#e8b04a;--bad:#ef5a45;--gold:#e8b04a}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15.5px/1.55 var(--sans);-webkit-text-size-adjust:100%}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:700;line-height:1.15;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.muted{color:var(--muted)}.small{font-size:.85rem}
+
+.app{height:100svh;display:flex;flex-direction:column}
+header.top{display:flex;align-items:center;gap:12px;padding:10px clamp(12px,2.5vw,28px);border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.lat{height:6px;background-color:var(--surface2);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='6'%3E%3Cpath d='M1 1h12v4H1z' fill='none' stroke='%23e8b04a' stroke-opacity='.7'/%3E%3C/svg%3E")}
+.brand{display:flex;gap:10px;align-items:center;margin-right:auto}
+.brand svg{width:36px;height:36px;flex:none}
+.brand b{font-family:var(--serif);font-size:1.12rem;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:.74rem;display:block}
+.tg{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:.82rem}
+.tg i{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block}
+.tg.on i{background:var(--ok);animation:pl 2.4s infinite}
+@keyframes pl{50%{opacity:.35}}
+.lang{display:flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{border:0;background:transparent;padding:5px 11px;font-size:.82rem}
+.lang button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.who{display:flex;gap:8px;align-items:center;font-size:.82rem;color:var(--muted)}
+.who b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--me);color:#fff;font-size:.8rem}
+
+.mtabs{display:none;border-bottom:1px solid var(--line);background:var(--surface)}
+.mtabs button{flex:1;border:0;background:transparent;padding:10px 4px;font-size:.88rem;color:var(--muted);border-bottom:3px solid transparent}
+.mtabs button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--btn);font-weight:600}
+.cols{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 410px}
+.chat{display:flex;flex-direction:column;min-height:0;min-width:0}
+.log{flex:1;overflow-y:auto;padding:clamp(14px,2.5vw,28px);display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.row{display:flex;gap:10px;align-items:flex-start;max-width:min(720px,100%)}
+.row.me{align-self:flex-end;flex-direction:row-reverse}
+.av{width:30px;height:30px;border-radius:50%;background:#7a1e15;display:grid;place-items:center;flex:none;font-size:.95rem}
+.bub{padding:10px 14px;border-radius:4px 16px 16px 16px;background:var(--surface);border:1px solid var(--line);white-space:pre-wrap;word-break:break-word;min-width:0}
+.row.me .bub{background:var(--me);color:#fff;border-color:transparent;border-radius:16px 16px 4px 16px}
+.row .stack{display:grid;gap:10px;min-width:0}
+.think span{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin:0 2px;animation:dot 1s infinite}
+.think span:nth-child(2){animation-delay:.15s}.think span:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.row{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:.88rem;transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--ok)}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+.svc{border:1px solid var(--line);border-left:5px solid var(--c,var(--ok));border-radius:14px;background:var(--surface);padding:14px;display:grid;gap:8px;--c:var(--ok)}
+.svc.closed{--c:var(--bad)}
+.svc .hd{display:flex;gap:10px;align-items:flex-start}
+.svc .ico{font-size:1.6rem;line-height:1.1}
+.svc h4{font-size:1.12rem}
+.svc .nm{font-family:var(--serif);color:var(--muted);font-size:.86rem;display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;padding:1px 9px;border-radius:99px;font-size:.76rem;font-weight:600;white-space:nowrap;background:color-mix(in srgb,var(--c) 17%,transparent);color:var(--c);--c:var(--ok)}
+.pill.bad{--c:var(--bad)}
+.svc .meta{display:grid;gap:2px;font-size:.88rem;color:var(--muted)}
+.svc .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:9px;padding:8px 14px;font-weight:600;background:var(--btn);color:#fff;transition:background .2s,transform .15s}
+.btn:hover{background:var(--btn-h)}.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--text);border:1.5px solid var(--line)}
+.btn.ghost:hover{background:var(--surface2)}
+.btn.sm{padding:5px 11px;font-size:.84rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.dock{border-top:1px solid var(--line);background:var(--surface);padding:10px clamp(12px,2.5vw,28px) 12px}
+.ta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:0}
+.ta .chip{padding:4px 11px;font-size:.82rem;background:var(--bg)}
+#f{display:flex;gap:8px}
+#q{flex:1;min-width:0;padding:11px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-size:1rem}
+#q:focus{border-color:var(--ok);outline:0}
+.send{border:0;background:var(--btn);color:#fff;border-radius:999px;padding:0 20px;font-weight:600}
+.send:hover{background:var(--btn-h)}
+.note{font-size:.76rem;color:var(--muted);margin-top:6px}
+
+.aside{border-left:1px solid var(--line);overflow-y:auto;background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:24px;min-height:0}
+.aside h2{font-size:1.1rem;margin-bottom:10px}
+.ft{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+#map{width:100%;height:auto;display:block;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.z{fill:var(--surface2);stroke:var(--line);stroke-width:1.5;transition:fill .4s}
+.z.hl{fill:var(--ok);fill-opacity:.38;stroke:var(--ok);stroke-width:2.5;animation:zp 1.8s ease-in-out infinite}
+@keyframes zp{50%{fill-opacity:.62}}
+.zt{font:600 11.5px var(--sans);fill:var(--text);text-anchor:middle;pointer-events:none}
+.pth{fill:none;stroke:var(--bad);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 9;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-22}}
+.now{display:flex;flex-direction:column}
+.nrow{display:flex;gap:10px;align-items:center;text-align:left;border:0;background:none;border-top:1px solid var(--line);padding:9px 2px;width:100%}
+.nrow:first-child{border-top:0}
+.nrow:hover b{color:var(--ok)}
+.nrow .t{margin-left:auto;font-size:.78rem;color:var(--muted);white-space:nowrap}
+.mine{list-style:none;margin:0;padding:0}
+.mine li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line);animation:in .4s both}
+.mine li:first-child{border-top:0}
+.mine small{display:block;color:var(--muted)}
+.mine button{border:0;background:none;color:var(--muted);font-size:1.2rem;line-height:1}
+
+.ovl{position:fixed;inset:0;z-index:100;background:rgba(3,10,7,.6);display:grid;place-items:end center;padding:16px}
+@media(min-width:700px){.ovl{place-items:center}}
+.sheet{width:min(440px,100%);max-height:100%;overflow:auto;background:var(--surface);border-radius:18px;padding:20px;position:relative;animation:in .3s both;box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
+.sheet h3{font-size:1.3rem;margin-bottom:2px}
+.fld{margin-top:14px}
+.fld>label,.fld>.l{display:block;font-size:.83rem;color:var(--muted);margin-bottom:6px}
+.fld input,.fld textarea{width:100%;padding:9px 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--bg)}
+.stp{display:flex;align-items:center;gap:14px}
+.stp button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:none;font-size:1.2rem;line-height:1}
+.stp b{min-width:2ch;text-align:center;font-size:1.15rem}
+.sum{margin-top:16px;padding:12px;border-radius:12px;background:var(--bg);font-size:.92rem}
+.sum b{font-family:var(--serif);font-size:1.15rem}
+.chip.dis{opacity:.4;text-decoration:line-through;pointer-events:none}
+.xx{position:absolute;right:12px;top:12px;border:0;background:var(--surface2);width:32px;height:32px;border-radius:50%;line-height:1}
+.okc{width:70px;height:70px;margin:8px auto;display:block}
+.okc circle{fill:none;stroke:var(--ok);stroke-width:4;stroke-dasharray:210;stroke-dashoffset:210;animation:d2 .6s ease forwards}
+.okc path{fill:none;stroke:var(--ok);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:50;stroke-dashoffset:50;animation:d2 .4s .5s ease forwards}
+@keyframes d2{to{stroke-dashoffset:0}}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:12px;font-size:.9rem;opacity:0;pointer-events:none;transition:.35s;z-index:200;max-width:92vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:900px){
+  .cols{grid-template-columns:1fr}
+  .mtabs{display:flex}
+  .aside{border-left:0;display:none}
+  .app[data-v="chat"] .chat{display:flex}
+  .app:not([data-v="chat"]) .chat{display:none}
+  .app:not([data-v="chat"]) .aside{display:flex}
+  .app[data-v="map"] #nowSec,.app[data-v="map"] #mineSec{display:none}
+  .app[data-v="now"] #mapSec,.app[data-v="now"] #mineSec{display:none}
+  .app[data-v="mine"] #mapSec,.app[data-v="mine"] #nowSec{display:none}
+  .who span{display:none}
+}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app" data-v="chat">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0b6e52"/><circle cx="18" cy="20" r="8.5" fill="#e0412f"/><path d="M4 33 Q20 19 36 33" fill="none" stroke="#e8b04a" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <div><b id="ttl">BCC Concierge</b><small>বাংলাদেশ চীন ক্লাব · 孟中俱乐部</small></div>
+    </div>
+    <button class="tg" id="smart" aria-pressed="false" title="Smart answers use your Claude account. Quick search always works."><i></i><span id="smartTx">Quick search</span></button>
+    <div class="lang" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="bn" aria-pressed="false">বাং</button><button data-lang="zh" aria-pressed="false">中文</button></div>
+    <div class="who"><b>AR</b><span>Anika Rahman · Permanent member</span></div>
+  </header>
+  <div class="lat"></div>
+  <div class="mtabs" role="tablist" id="mtabs">
+    <button role="tab" data-v="chat" aria-selected="true">Chat</button><button role="tab" data-v="map" aria-selected="false">Map</button><button role="tab" data-v="now" aria-selected="false">Open now</button><button role="tab" data-v="mine" aria-selected="false">My day</button>
+  </div>
+  <div class="cols">
+    <section class="chat" aria-label="Chat">
+      <div class="log" id="log" aria-live="polite"></div>
+      <div class="dock">
+        <div class="ta" id="ta"></div>
+        <form id="f" autocomplete="off"><input id="q" type="text" aria-label="Ask for a service or facility" enterkeyhint="send"><button class="send" id="go" type="submit">Send</button><button class="btn ghost" id="stop" type="button" hidden>Stop</button></form>
+        <p class="note" id="note"></p>
+      </div>
+    </section>
+    <aside class="aside">
+      <section id="mapSec"><h2 id="hMap">Where it is</h2><div class="ft" id="ft"></div><svg id="map" viewBox="0 0 600 340" role="img" aria-label="Club floor plan"></svg><p class="small muted" id="mapNote" style="margin-top:8px"></p></section>
+      <section id="nowSec"><h2 id="hNow">Open now</h2><div class="now" id="now"></div></section>
+      <section id="mineSec"><h2 id="hMine">My day</h2><ul class="mine" id="mine"></ul><p class="small muted" id="mineEmpty"></p></section>
+    </aside>
+  </div>
+</div>
+<div class="ovl" id="ovl" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var pad=function(n){return (n<10?'0':'')+n};
+var fm=function(m){m=m%1440;return pad(Math.floor(m/60))+':'+pad(m%60)};
+var money=function(n){return '৳'+new Intl.NumberFormat('en-IN').format(Math.round(n))};
+
+/* ===== CATALOG (facts follow the club website; hours, prices of non-listed items and extensions are sample data) ===== */
+var CAT=[
+ {id:'guesthouse',ico:'🛏️',n:'Guest house',z:'客房',b:'গেস্ট হাউস',h:null,zone:'gh',price:'Twelve rooms and suites. From ৳6,500 a night; members get 15% off',act:'room',dept:'Front desk',ext:'100',kw:'room rooms stay hotel sleep night nights accommodation bed suite guest luggage রুম থাকা হোটেল গেস্ট ঘুম রাত 客房 住宿 酒店 住 订房'},
+ {id:'pickup',ico:'🚗',n:'Airport pick-up',z:'机场接送',b:'বিমানবন্দর পিকআপ',h:null,zone:'reception',price:'৳1,500 each way. Request at least 6 hours ahead',act:'request',dept:'Front desk',ext:'100',kw:'airport pickup pick-up transfer car ride taxi flight arrival hazrat shahjalal বিমানবন্দর পিকআপ গাড়ি 接机 机场 接送 接人'},
+ {id:'silk',ico:'🥢',n:'Silk Route Restaurant',z:'丝路餐厅',b:'সিল্ক রুট রেস্তোরাঁ',h:[720,1380],zone:'silk',price:'Mains ৳420 to ৳3,200. Peking duck carved at the table; kacchi on Fridays',act:'table',dept:'Silk Route',ext:'210',kw:'restaurant dinner lunch food eat chinese sichuan cantonese bangladeshi duck biryani kacchi table menu meal hungry খাব খাবার রেস্তোরাঁ ডিনার লাঞ্চ টেবিল 餐厅 吃饭 烤鸭 晚餐 午餐 订位 订座 菜'},
+ {id:'lantern',ico:'🍸',n:'Lantern Bar',z:'灯笼酒吧',b:'ল্যান্টার্ন বার',h:[1020,1440],late:1500,zone:'terrace',price:'Drinks ৳380 to ৳750. Licensed drinks need a permit check. Open until late on weekends',act:'table',dept:'Lantern Bar',ext:'230',kw:'bar table drink drinks cocktail terrace beer wine mocktail evening বার পানীয় ড্রিংক 酒吧 饮料 喝酒 露台'},
+ {id:'tea',ico:'🍵',n:'Tea Garden Café',z:'茶园咖啡馆',b:'টি গার্ডেন ক্যাফে',h:[420,1260],zone:'tea',price:'Tea pots ৳250 to ৳420; egg tarts, mishti doi, coffee from early morning',act:'table',dept:'Tea Garden',ext:'220',kw:'tea table coffee cafe café breakfast snack egg tart mishti doi sylhet longjing চা কফি ক্যাফে নাস্তা 茶 咖啡 早餐 点心 茶园'},
+ {id:'banquet',ico:'🏛️',n:'Banquet hall (300 seats)',z:'宴会厅',b:'ব্যাঙ্কোয়েট হল',h:[540,1380],zone:'banquet',price:'Quote on request, depends on menu and date',act:'request',dept:'Events',ext:'240',kw:'banquet wedding party hall celebration birthday reception function বিয়ে পার্টি হল অনুষ্ঠান 宴会 婚礼 宴会厅 聚会'},
+ {id:'conference',ico:'🗣️',n:'Conference and board rooms',z:'会议室',b:'কনফারেন্স রুম',h:[480,1200],zone:'conf',price:'Conference room has an interpretation booth; private board room available',act:'request',dept:'Events',ext:'241',kw:'meeting conference boardroom board interpretation presentation seminar মিটিং কনফারেন্স বোর্ড 会议 会议室 同声传译 开会'},
+ {id:'interp',ico:'💬',n:'Bangla–Mandarin interpreter',z:'孟汉口译',b:'বাংলা–ম্যান্ডারিন দোভাষী',h:[540,1080],zone:'reception',price:'From ৳5,000 per half day. Weekdays',act:'request',dept:'Front desk',ext:'100',kw:'interpreter translation translate translator mandarin chinese bangla language দোভাষী অনুবাদ ভাষান্তর 翻译 口译 翻译员'},
+ {id:'gym',ico:'🏋️',n:'Gym',z:'健身房',b:'জিম',h:[360,1320],zone:'gym',price:'Free for members; guest day pass ৳500. Trainers on duty',act:'slot',dept:'Fitness',ext:'250',kw:'gym workout fitness weights trainer exercise cardio জিম ব্যায়াম ফিটনেস 健身 健身房 锻炼'},
+ {id:'pool',ico:'🏊',n:'Swimming pool',z:'游泳池',b:'সুইমিং পুল',h:[360,1200],zone:'pool',price:'Free for members and registered guests',act:'slot',dept:'Fitness',ext:'251',kw:'pool swim swimming swimsuit সাঁতার পুল সুইমিং 游泳 泳池 游泳池'},
+ {id:'squash',ico:'🎾',n:'Squash courts',z:'壁球场',b:'স্কোয়াশ কোর্ট',h:[420,1320],zone:'squash',price:'Two courts, book by the hour. Coaching available',act:'slot',dept:'Fitness',ext:'252',kw:'squash court racket স্কোয়াশ কোর্ট 壁球'},
+ {id:'tt',ico:'🏓',n:'Table tennis room',z:'乒乓球室',b:'টেবিল টেনিস রুম',h:[420,1320],zone:'tt',ph:['table tennis','ping pong'],price:'Book by the hour. Coaching 17:00. Inter-club tournament on 16 Oct',act:'slot',dept:'Fitness',ext:'253',kw:'tennis ping pong tournament টেবিল_টেনিস টেনিস পিংপং 乒乓 乒乓球'},
+ {id:'yoga',ico:'🧘',n:'Yoga and tai chi studio',z:'瑜伽太极室',b:'যোগব্যায়াম স্টুডিও',h:[360,1200],zone:'yoga',price:'Tai chi 06:30, yoga 07:30. Free for members',act:'slot',dept:'Fitness',ext:'254',kw:'yoga tai chi taichi meditation stretch যোগ যোগব্যায়াম তাই_চি 瑜伽 太极 冥想'},
+ {id:'kids',ico:'🧒',n:'Children\u2019s coaching',z:'儿童培训',b:'শিশুদের কোচিং',h:[900,1140],zone:'tt',price:'Coaching for members\u2019 children, afternoons',act:'request',dept:'Fitness',ext:'250',kw:'kids kid children child coaching junior শিশু বাচ্চা কোচিং 孩子 儿童 小孩'},
+ {id:'events',ico:'🏮',n:'Events and RSVP',z:'活动报名',b:'অনুষ্ঠান ও আরএসভিপি',h:null,zone:'banquet',price:'Tournaments, masterclasses, tastings and banquets',act:'event',dept:'Events',ext:'240',kw:'event events rsvp festival programme program masterclass tasting calendar whats-on অনুষ্ঠান ইভেন্ট আয়োজন 活动 报名 节日'},
+ {id:'dues',ico:'💳',n:'Pay dues',z:'缴纳会费',b:'ফি পরিশোধ',h:null,zone:'memb',price:'Your October dues: ৳2,000. Pay by bKash, Alipay, WeChat Pay or card',act:'pay',dept:'Accounts',ext:'260',kw:'pay dues bill subscription payment fee invoice bkash alipay wechat ফি বিল পেমেন্ট পরিশোধ চাঁদা 付款 会费 缴费 账单 支付'},
+ {id:'guestpass',ico:'🪪',n:'Guest pass',z:'访客通行',b:'অতিথি পাস',h:null,zone:'reception',price:'Permanent members may bring up to 4 guests per visit',act:'request',dept:'Front desk',ext:'100',kw:'guest pass invite visitor friend bring card digital অতিথি পাস আমন্ত্রণ কার্ড 访客 邀请 会员卡 带朋友'},
+ {id:'membership',ico:'📝',n:'Membership office',z:'会员办公室',b:'সদস্যপদ অফিস',h:[540,1020],zone:'memb',price:'Two members propose and second you; the executive committee approves',act:'request',dept:'Membership',ext:'261',kw:'join membership apply application tier proposer seconder become সদস্যপদ আবেদন সদস্য 会员 申请 加入 入会'},
+ {id:'desk',ico:'🛎️',n:'Front desk',z:'前台',b:'রিসেপশন',h:null,zone:'reception',price:'Help with anything else, lost property or feedback',act:'request',dept:'Front desk',ext:'100',kw:'help desk reception lost found complaint feedback support assistance সহায়তা রিসেপশন সাহায্য 前台 帮助 投诉 失物'}
+];
+var BY={};CAT.forEach(function(s){BY[s.id]=s});
+var EVS=[['16 Oct','Inter-club table tennis tournament','Table tennis room, 15:00',22],['23 Oct','Dim sum and pitha masterclass','Silk Route Restaurant, 16:00',6],['31 Oct','Tea tasting: Sylhet meets Fujian','Tea Garden Café, 17:00',4],['16 Dec','Victory Day dinner','Grand banquet hall, 19:30',170]];
+
+/* floor plan */
+var FL={G:{en:'Ground floor',bn:'নিচতলা',zh:'一楼',e:'Entrance'},F:{en:'First floor',bn:'দোতলা',zh:'二楼',e:'Lift and stairs'},O:{en:'Outdoors',bn:'খোলা জায়গা',zh:'户外',e:'Garden door'}};
+var ZN={
+ silk:{f:'G',x:30,y:20,w:210,h:150,l:'Silk Route'},banquet:{f:'G',x:250,y:20,w:100,h:150,l:'Banquet hall'},tea:{f:'G',x:360,y:20,w:210,h:150,l:'Tea Garden Café'},
+ memb:{f:'G',x:30,y:190,w:130,h:110,l:'Membership and accounts'},reception:{f:'G',x:180,y:190,w:240,h:110,l:'Reception and lobby'},conf:{f:'G',x:440,y:190,w:130,h:110,l:'Conference rooms'},
+ gh:{f:'F',x:30,y:20,w:300,h:150,l:'Guest house rooms'},gym:{f:'F',x:350,y:20,w:220,h:150,l:'Gym'},yoga:{f:'F',x:30,y:190,w:200,h:110,l:'Yoga and tai chi'},tt:{f:'F',x:250,y:190,w:150,h:110,l:'Table tennis'},squash:{f:'F',x:420,y:190,w:150,h:110,l:'Squash courts'},
+ pool:{f:'O',x:30,y:20,w:260,h:160,l:'Swimming pool'},terrace:{f:'O',x:310,y:20,w:260,h:160,l:'Lantern Bar terrace'},lawn:{f:'O',x:30,y:200,w:540,h:100,l:'Lawn'}
+};
+
+/* ===== UI TEXT ===== */
+var U={
+ en:{hello:'Hi Anika. Ask me for anything at the club: a table, a room, the gym, today\u2019s events. I\u2019ll find it and show you where it is.',ph:'Ask for a service or facility…',send:'Send',stop:'Stop',
+  chips:['Book a table tonight','Where is the gym?','What\u2019s open now?','Room for 2 nights','Pay my dues','Events this month','Airport pick-up'],
+  map:'Where it is',now:'Open now',mine:'My day',tabs:['Chat','Map','Open now','My day'],empty:'Nothing booked yet. Bookings you make here appear in this list.',nf:'I couldn\u2019t find that. Try another word, or ask the front desk on ext. 100.',
+  open:'Open now',openq:'Here is what is open right now.',map0:'Search for a place to see it on the map.',showmap:'Show on map',call:'Call ext.',book:{room:'Book a room',table:'Reserve a table',slot:'Book a slot',event:'RSVP',pay:'Pay now',request:'Send a request'},o24:'Open 24 hours',until:'Open until',closed:'Closed · opens',smartOn:'Smart answers',smartOff:'Quick search',note:'Smart answers use your own Claude account and may be wrong. Check prices at the desk. Sample data.',think:'Thinking…',follow:'Anything else?'},
+ bn:{hello:'স্বাগতম আনিকা। ক্লাবের যেকোনো কিছু জিজ্ঞেস করুন: টেবিল, রুম, জিম বা আজকের অনুষ্ঠান। আমি খুঁজে দেব আর কোথায় তা দেখিয়ে দেব।',ph:'সেবা বা সুবিধার নাম লিখুন…',send:'পাঠান',stop:'থামান',
+  chips:['আজ রাতে টেবিল বুক করুন','জিম কোথায়?','এখন কী খোলা আছে?','২ রাতের জন্য রুম','আমার ফি দিন','এই মাসের অনুষ্ঠান','বিমানবন্দর পিকআপ'],
+  map:'কোথায় আছে',now:'এখন খোলা',mine:'আমার দিন',tabs:['চ্যাট','মানচিত্র','এখন খোলা','আমার দিন'],empty:'এখনও কিছু বুক করা হয়নি। এখানে করা বুকিং এই তালিকায় দেখা যাবে।',nf:'এটি খুঁজে পাইনি। অন্য শব্দে চেষ্টা করুন, বা রিসেপশনে এক্সট. ১০০-এ জানান।',
+  open:'এখন খোলা',openq:'এই মুহূর্তে যা খোলা আছে:',map0:'মানচিত্রে দেখতে কিছু খুঁজুন।',showmap:'মানচিত্রে দেখুন',call:'কল এক্সট.',book:{room:'রুম বুক করুন',table:'টেবিল রিজার্ভ করুন',slot:'সময় বুক করুন',event:'আরএসভিপি',pay:'এখনই পরিশোধ',request:'অনুরোধ পাঠান'},o24:'২৪ ঘণ্টা খোলা',until:'খোলা থাকবে',closed:'বন্ধ · খুলবে',smartOn:'স্মার্ট উত্তর',smartOff:'দ্রুত খোঁজ',note:'স্মার্ট উত্তর আপনার নিজের Claude অ্যাকাউন্ট ব্যবহার করে এবং ভুল হতে পারে। দাম ডেস্কে যাচাই করুন। নমুনা তথ্য।',think:'ভাবছি…',follow:'আর কিছু?'},
+ zh:{hello:'您好,安妮卡。想找什么都可以问我:订位、客房、健身房、今天的活动。我会帮您找到并指出位置。',ph:'输入服务或设施名称…',send:'发送',stop:'停止',
+  chips:['今晚订位','健身房在哪?','现在哪些在营业?','订两晚客房','缴纳会费','本月活动','机场接送'],
+  map:'位置',now:'正在营业',mine:'我的日程',tabs:['聊天','地图','营业中','日程'],empty:'还没有预订。您在这里的预订会显示在此列表中。',nf:'没有找到相关内容。请换个说法,或拨打前台分机 100。',
+  open:'营业中',openq:'以下是目前正在营业的地方。',map0:'搜索一个地点即可在地图上查看。',showmap:'查看地图',call:'分机',book:{room:'预订客房',table:'预订座位',slot:'预约时段',event:'报名',pay:'立即支付',request:'提交申请'},o24:'24小时营业',until:'营业至',closed:'已关闭 · 开门',smartOn:'智能回答',smartOff:'快速搜索',note:'智能回答使用您自己的 Claude 账户,可能有误。价格请以前台为准。示例数据。',think:'思考中…',follow:'还需要什么?'}
+};
+var S={lang:'en',ai:false,aiReady:false,floor:'G',hl:[],mine:[{ic:'🏮',t:'Tea tasting: Sylhet meets Fujian',w:'31 Oct, 17:00 · RSVP confirmed'}],hist:[],busy:false,ctl:null,asked:0};
+function tt(k){return U[S.lang][k]}
+function detect(s){return /[\u0980-\u09FF]/.test(s)?'bn':/[\u4e00-\u9fff]/.test(s)?'zh':'en'}
+function nm(s,l){return l==='bn'?s.b:l==='zh'?s.z:s.n}
+
+/* ===== STATUS / SEARCH ===== */
+function status(s,d){d=d||new Date();var L=U[S.lang];if(!s.h)return {open:true,t:L.o24};var m=d.getHours()*60+d.getMinutes(),o=s.h[0],c=s.h[1];if(s.late&&(d.getDay()===5||d.getDay()===6))c=s.late;var op=m>=o&&m<c;return op?{open:true,t:L.until+' '+fm(c)}:{open:false,t:L.closed+' '+fm(o)}}
+var STOP={the:1,an:1,to:1,for:1,in:1,on:1,of:1,my:1,me:1,is:1,are:1,where:1,what:1,how:1,can:1,you:1,want:1,need:1,find:1,show:1,tonight:1,today:1,this:1,that:1,with:1,and:1,any:1,get:1,please:1,there:1,does:1,have:1,our:1,your:1,club:1,from:1,nights:1};
+function search(q){var L=q.toLowerCase(),words=L.split(/[^a-z0-9\-]+/).filter(function(w){return w.length>1&&!STOP[w]}),res=[];
+ CAT.forEach(function(s){var sc=0;s.kw.split(' ').forEach(function(k){if(!k)return;k=k.replace(/_/g,' ');
+   if(/^[a-z0-9\- ]+$/.test(k)){words.forEach(function(w){if(w===k)sc+=3;else if(w.length>3&&k.length>3&&(k.indexOf(w)===0||w.indexOf(k)===0))sc+=1.5})}else if(L.indexOf(k)>-1)sc+=4});
+  (s.ph||[]).forEach(function(p){if(L.indexOf(p)>-1)sc+=7});if(L.indexOf(s.n.toLowerCase())>-1)sc+=6;if(L.indexOf(s.z)>-1)sc+=6;if(L.indexOf(s.b)>-1)sc+=6;
+  if(sc>0)res.push([sc,s])});
+ res.sort(function(a,b){return b[0]-a[0]});if(!res.length)return [];var top=res[0][0];return res.filter(function(r){return r[0]>=top*.5}).slice(0,3).map(function(r){return r[1]})}
+function openNow(){return CAT.filter(function(s){return status(s).open&&s.h})}
+var RX_OPEN=/open now|what.?s open|currently open|এখন.*খোলা|খোলা.*এখন|现在.*(营业|开门|开)|营业中|正在营业/i;
+var RX_HI=/^\s*(hi|hello|hey|salam|assalamu.*|স্বাগতম|হ্যালো|হাই|你好|您好)\W*$/i;
+
+/* ===== CHAT RENDER ===== */
+var log=$('#log');
+function scrollEnd(){log.scrollTop=log.scrollHeight}
+function addRow(who){var r=document.createElement('div');r.className='row '+who;if(who==='bot'){var a=document.createElement('div');a.className='av';a.textContent='🏮';a.setAttribute('aria-hidden','true');r.appendChild(a)}var st=document.createElement('div');st.className='stack';r.appendChild(st);log.appendChild(r);return st}
+function userMsg(t){var st=addRow('me');var b=document.createElement('div');b.className='bub';b.textContent=t;st.appendChild(b);scrollEnd()}
+function botBubble(t){var st=addRow('bot');var b=document.createElement('div');b.className='bub';if(t==='…'){b.className+=' think';b.innerHTML='<span></span><span></span><span></span>';b.setAttribute('aria-label',tt('think'))}else b.textContent=t;st.appendChild(b);scrollEnd();return {st:st,b:b}}
+function cardHTML(s){var st=status(s),l=S.lang,z=ZN[s.zone],L=U[l],fl=FL[z.f][l];
+ return '<div class="svc '+(st.open?'':'closed')+'" data-id="'+s.id+'"><div class="hd"><span class="ico" aria-hidden="true">'+s.ico+'</span><div style="min-width:0"><h4>'+esc(nm(s,l))+'</h4><div class="nm">'+['en','bn','zh'].filter(function(x){return x!==l}).map(function(x){return '<span lang="'+x+'">'+esc(nm(s,x))+'</span>'}).join('')+'</div></div><span class="pill '+(st.open?'':'bad')+'" style="margin-left:auto">'+esc(st.t)+'</span></div><div class="meta"><span>📍 '+esc(z.l)+', '+esc(fl)+'</span><span>'+esc(s.price)+'</span></div><div class="acts"><button class="btn sm" data-a="act" data-id="'+s.id+'">'+L.book[s.act]+'</button><button class="btn ghost sm" data-a="map" data-id="'+s.id+'">'+L.showmap+'</button><button class="btn ghost sm" data-a="call" data-id="'+s.id+'">'+L.call+' '+s.ext+'</button></div></div>'}
+function addCards(st,list){if(!list.length)return;list.forEach(function(s){var d=document.createElement('div');d.innerHTML=cardHTML(s);st.appendChild(d.firstChild)});showOnMap(list.map(function(s){return s.zone}));scrollEnd()}
+function addChips(st,arr){var c=document.createElement('div');c.className='chips';arr.forEach(function(t){var b=document.createElement('button');b.className='chip';b.textContent=t;b.dataset.a='say';b.dataset.t=t;c.appendChild(b)});st.appendChild(c);scrollEnd()}
+
+/* ===== MAP ===== */
+function floorOf(zone){return ZN[zone].f}
+function drawMap(){var f=S.floor,h='';$$('#ft button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.f===f)});
+ Object.keys(ZN).forEach(function(k){var z=ZN[k];if(z.f!==f)return;var hl=S.hl.indexOf(k)>-1;h+='<rect class="z'+(hl?' hl':'')+'" x="'+z.x+'" y="'+z.y+'" width="'+z.w+'" height="'+z.h+'" rx="10"/><text class="zt" x="'+(z.x+z.w/2)+'" y="'+(z.y+z.h/2+4)+'">'+esc(z.l)+'</text>'});
+ var tz=S.hl.filter(function(k){return ZN[k].f===f})[0];
+ h+='<g><circle cx="300" cy="322" r="9" fill="var(--bad)"/><text class="zt" x="300" y="318" dy="-14">'+FL[f].e+'</text></g>';
+ if(tz){var z=ZN[tz],cx=z.x+z.w/2,cy=z.y+z.h/2,cor=f==='O'?190:180,d='M300 322V'+cor+'H'+cx+'V'+(z.y>cor?cy:cy);h+='<path class="pth" d="'+d+'"/>';if(!reduce)h+='<circle r="6" fill="var(--bad)"><animateMotion dur="3s" repeatCount="indefinite" path="'+d+'"/></circle>'}
+ $('#map').innerHTML=h;
+ $('#mapNote').textContent=tz?ZN[tz].l+', '+FL[f][S.lang]:tt('map0')}
+function showOnMap(zones){S.hl=zones.slice();var f=zones.length?floorOf(zones[0]):S.floor;S.floor=f;drawMap()}
+
+/* ===== OPEN NOW / MY DAY ===== */
+function drawNow(){var l=openNow();$('#now').innerHTML=l.map(function(s){var st=status(s);return '<button class="nrow" data-a="show" data-id="'+s.id+'"><span aria-hidden="true">'+s.ico+'</span><b>'+esc(nm(s,S.lang))+'</b><span class="t">'+esc(st.t)+'</span></button>'}).join('')}
+function drawMine(){$('#mine').innerHTML=S.mine.map(function(m,i){return '<li><span aria-hidden="true">'+m.ic+'</span><div><b>'+esc(m.t)+'</b><small>'+esc(m.w)+'</small></div><button data-a="del" data-i="'+i+'" aria-label="Remove">×</button></li>'}).join('');$('#mineEmpty').textContent=S.mine.length?'':tt('empty')}
+
+/* ===== ASK ===== */
+function localReply(res,l,q){var L=U[l];if(RX_OPEN.test(q))return L.openq;if(!res.length)return L.nf;var s=res[0],st=status(s,new Date()),z=ZN[s.zone];
+ var T={en:nm(s,l)+': '+z.l+', '+FL[z.f][l]+'. '+st.t+'. '+s.price+'.',bn:nm(s,l)+': '+FL[z.f][l]+'। '+st.t+'। ',zh:nm(s,l)+':'+FL[z.f][l]+'。'+st.t+'。'};return T[l]}
+function catalogText(){return CAT.map(function(s){var z=ZN[s.zone];return s.id+' | '+s.n+' / '+s.z+' / '+s.b+' | hours '+(s.h?fm(s.h[0])+'-'+fm(s.h[1])+(s.late?' (Fri and Sat until '+fm(s.late)+')':''):'24h')+' | '+z.l+', '+FL[z.f].en+' | '+s.price+' | action: '+s.act+', ext '+s.ext}).join('\n')}
+function rules(){var d=new Date();return 'You are the concierge assistant of Bangladesh China Club Ltd in Gulshan, Dhaka. You help members and guests find services and facilities quickly.\n\nRules:\n- Reply in the same language as the user\u2019s last message (English, Bangla or Mandarin Chinese).\n- At most 55 words. Be direct: where it is, whether it is open right now (use the current time), and the one key fact such as price. No greeting filler, no markdown.\n- Use ONLY the catalog below. If something is not there, say you do not have it and suggest the front desk on ext. 100. Never invent prices, hours or services.\n- If the user wants to book or pay, say to tap the button on the card.\n- Finish with a last line exactly in this form: IDS: id1,id2 (up to 3 catalog ids that best answer, or IDS: none).\n\nCurrent local time: '+d.toDateString()+', '+fm(d.getHours()*60+d.getMinutes())+'. The user is Anika Rahman, a Permanent member (up to 4 guests per visit; member rates apply).\n\nCatalog (id | name | hours | location | price | action):\n'+catalogText()+'\n\nUpcoming events: '+EVS.map(function(e){return e[0]+' '+e[1]+' ('+e[2]+', '+e[3]+' seats left)'}).join('; ')}
+function cleanStream(t){return t.replace(/\*\*/g,'').replace(/\n*\s*I(D(S(:[^\n]*)?)?)?\s*$/,'').replace(/\n*IDS:[\s\S]*$/,'').trim()}
+function parseIds(t){var m=t.match(/IDS:\s*([^\n]*)/i);if(!m)return null;return m[1].split(/[,\s]+/).map(function(x){return x.replace(/[^a-z]/g,'')}).filter(function(x){return BY[x]})}
+
+async function ask(text){
+  text=text.trim();if(!text||S.busy)return;var l=detect(text);if(/[\u0980-\u09FF\u4e00-\u9fff]/.test(text)&&l!==S.lang)setLang(l,true);
+  userMsg(text);$('#q').value='';drawTA('');
+  if(RX_HI.test(text)){var b0=botBubble(U[S.lang].hello);addChips(b0.st,U[S.lang].chips.slice(0,4));return}
+  var openQ=RX_OPEN.test(text),res=openQ?openNow().slice(0,3):search(text);
+  if(!S.ai||!S.aiReady){var lr=botBubble(localReply(res,l,text));if(openQ){addCards(lr.st,res)}else addCards(lr.st,res);S.hist.push({role:'user',content:text},{role:'assistant',content:lr.b.textContent});return}
+  S.busy=true;$('#go').hidden=true;$('#stop').hidden=false;var bb=botBubble('…'),ctl=new AbortController();S.ctl=ctl;
+  var turns=S.hist.slice(-6).concat([{role:'user',content:text}]);if(turns[0].role!=='user')turns.shift();
+  var input=[{role:'user',content:rules()}].concat(turns);
+  try{
+    var r=await window.__sample(input,{modelTier:'quick',cache:false,signal:ctl.signal,onText:function(u){bb.b.classList.remove('think');bb.b.textContent=cleanStream(u.text);scrollEnd()}});
+    var vis=cleanStream(r.text),ids=parseIds(r.text);bb.b.classList.remove('think');bb.b.textContent=vis||localReply(res,l,text);
+    var cards=ids===null?res.slice(0,2):ids.map(function(i){return BY[i]}).slice(0,3);addCards(bb.st,cards);S.hist.push({role:'user',content:text},{role:'assistant',content:vis});
+  }catch(e){
+    var code=e&&e.code;
+    if(code==='cancelled'){bb.b.classList.remove('think');bb.b.textContent=(e.text?cleanStream(e.text):'…')}
+    else{bb.b.classList.remove('think');if(code==='not_granted'||code==='sampling_disabled'||code==='capability_disabled'||code==='not_declared'){setAI(false,true)}
+      bb.b.textContent=localReply(res,l,text)+(code==='rate_limited'?'\n(Smart answers are busy. Showing quick results.)':'');addCards(bb.st,res)}
+  }finally{S.busy=false;S.ctl=null;$('#go').hidden=false;$('#stop').hidden=true;scrollEnd()}
+}
+
+/* ===== TYPE-AHEAD ===== */
+function drawTA(q){var ta=$('#ta');ta.innerHTML='';if(!q||q.length<2)return;var r=RX_OPEN.test(q)?[]:search(q).slice(0,4);r.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='chip';b.dataset.a='show';b.dataset.id=s.id;b.textContent=s.ico+' '+nm(s,S.lang);ta.appendChild(b)})}
+$('#q').addEventListener('input',function(){drawTA(this.value)});
+$('#f').addEventListener('submit',function(e){e.preventDefault();ask($('#q').value)});
+$('#stop').addEventListener('click',function(){if(S.ctl)S.ctl.abort()});
+
+/* ===== ACTION SHEETS ===== */
+var SH=null;
+function slotsFor(s,day){var d=new Date(),m=d.getHours()*60+d.getMinutes()+30,o=s.h?s.h[0]:480,c=s.h?(s.late&&(d.getDay()===5||d.getDay()===6)?s.late:s.h[1]):1320,step=s.act==='table'?30:60,out=[];
+ var from=day==='Today'?Math.max(o,Math.ceil(m/step)*step):o;if(s.act==='table'&&s.id!=='tea'&&from<1080&&day!=='Today')from=Math.max(from,o);
+ for(var t=from;t<c-30&&out.length<8;t+=step)out.push(fm(t));return out}
+function full(s,day,t){var h=(s.id+day+t).split('').reduce(function(a,c){return a+c.charCodeAt(0)},0);return h%5===0}
+function openSheet(id){var s=BY[id],v={day:'Today',guests:2,nights:2,room:'Deluxe',pick:false,ev:0,method:'bKash',when:'Today',time:'18:00',note:'',t:null};
+ if(s.act==='table'||s.act==='slot'){var sl=slotsFor(s,'Today');if(!sl.length){v.day='Tomorrow';sl=slotsFor(s,'Tomorrow')}v.t=sl.filter(function(x){return !full(s,v.day,x)})[0]||sl[0]}
+ SH={s:s,v:v,done:false};drawSheet();$('#ovl').hidden=false}
+var RATE={Deluxe:6500,Executive:8500,'Jade suite':12000};
+function chipRow(key,opts,cur,dis){return '<div class="chips">'+opts.map(function(o){var d=dis&&dis(o);return '<button type="button" class="chip'+(d?' dis':'')+'" data-a="sv" data-k="'+key+'" data-v="'+esc(o)+'" aria-pressed="'+(o===cur)+'">'+esc(o)+'</button>'}).join('')+'</div>'}
+function stepper(key,val,min,max){return '<div class="stp"><button type="button" data-a="st" data-k="'+key+'" data-d="-1" data-min="'+min+'" data-max="'+max+'" aria-label="Fewer">−</button><b>'+val+'</b><button type="button" data-a="st" data-k="'+key+'" data-d="1" data-min="'+min+'" data-max="'+max+'" aria-label="More">+</button></div>'}
+function summary(){var s=SH.s,v=SH.v;
+ if(s.act==='table')return ['Table for '+v.guests+' at '+s.n+', '+v.day.toLowerCase()+' '+v.t,s.n+' · '+v.day+' '+v.t+' · '+v.guests+' guests'];
+ if(s.act==='room'){var tot=RATE[v.room]*v.nights*.85+(v.pick?1500:0);return [v.room+', '+v.nights+' night'+(v.nights>1?'s':'')+', '+v.day.toLowerCase()+'. Member total '+money(tot),'Guest house · '+v.room+' · '+v.nights+' nights from '+v.day.toLowerCase()]}
+ if(s.act==='slot')return [s.n+', '+v.day.toLowerCase()+' '+v.t,s.n+' · '+v.day+' '+v.t];
+ if(s.act==='event'){var e=EVS[v.ev];return ['RSVP for '+e[1]+', '+v.guests+' attending',e[1]+' · '+e[0]+' · '+v.guests+' seats']}
+ if(s.act==='pay')return ['Pay ৳2,000 October dues by '+v.method,'October dues · ৳2,000 paid via '+v.method];
+ return [s.n+' request to '+s.dept+', '+v.when.toLowerCase()+' '+v.time,s.n+' · requested for '+v.when+' '+v.time]}
+function drawSheet(){var s=SH.s,v=SH.v,h='<button class="xx" data-a="xs" aria-label="Close">×</button>';
+ if(SH.done){var sm=summary();$('#sheet').innerHTML='<svg class="okc" viewBox="0 0 80 80"><circle cx="40" cy="40" r="33"/><path d="M26 41l10 10 19-21"/></svg><h3 style="text-align:center">'+(s.act==='pay'?'Payment received':s.act==='request'?'Request sent':'Confirmed')+'</h3><p class="muted" style="text-align:center;margin-top:6px">'+esc(sm[0])+'.<br>Reference BCC-'+SH.ref+'. Added to My day.</p><div style="margin-top:16px"><button class="btn" style="width:100%" data-a="xs">Done</button></div>';return}
+ h+='<h3>'+s.ico+' '+esc(s.n)+'</h3><p class="muted small">'+esc(s.price)+'</p>';
+ if(s.act==='table'){h+='<div class="fld"><span class="l">Day</span>'+chipRow('day',['Today','Tomorrow'],v.day)+'</div><div class="fld"><span class="l">Time</span>'+chipRow('t',slotsFor(s,v.day),v.t,function(t){return full(s,v.day,t)})+'</div><div class="fld"><span class="l">Guests</span>'+stepper('guests',v.guests,1,20)+'</div>'+(s.id==='lantern'?'<p class="small muted" style="margin-top:10px">Licensed drinks are served after a permit check at the bar.</p>':'')}
+ if(s.act==='room'){h+='<div class="fld"><span class="l">Arriving</span>'+chipRow('day',['Tonight','Tomorrow','This weekend'],v.day==='Today'?'Tonight':v.day)+'</div><div class="fld"><span class="l">Room</span>'+chipRow('room',Object.keys(RATE),v.room)+'</div><div class="fld"><span class="l">Nights</span>'+stepper('nights',v.nights,1,14)+'</div><div class="fld"><span class="l">Extras</span><div class="chips"><button type="button" class="chip" data-a="tg" data-k="pick" aria-pressed="'+v.pick+'">Airport pick-up +৳1,500</button></div></div>'}
+ if(s.act==='slot'){h+='<div class="fld"><span class="l">Day</span>'+chipRow('day',['Today','Tomorrow'],v.day)+'</div><div class="fld"><span class="l">Time</span>'+chipRow('t',slotsFor(s,v.day),v.t,function(t){return full(s,v.day,t)})+'</div>'}
+ if(s.act==='event'){h+='<div class="fld"><span class="l">Event</span><div style="display:grid;gap:8px">'+EVS.map(function(e,i){return '<button type="button" class="chip" style="text-align:left;border-radius:12px" data-a="sv" data-k="ev" data-v="'+i+'" aria-pressed="'+(v.ev===i)+'"><b>'+e[0]+'</b> '+esc(e[1])+'<br><span style="opacity:.8;font-size:.8rem">'+esc(e[2])+' · '+e[3]+' seats left</span></button>'}).join('')+'</div></div><div class="fld"><span class="l">Attending</span>'+stepper('guests',v.guests,1,6)+'</div>'}
+ if(s.act==='pay'){h+='<div class="fld"><span class="l">Pay with</span>'+chipRow('method',['bKash','Nagad','Alipay','WeChat Pay','Card'],v.method)+'</div>'}
+ if(s.act==='request'){h+='<div class="fld"><span class="l">When</span>'+chipRow('when',['Today','Tomorrow','This week'],v.when)+'</div><div class="fld"><label for="rt">Time</label><input id="rt" data-in="time" value="'+esc(v.time)+'"></div><div class="fld"><label for="rn">Note (optional)</label><textarea id="rn" rows="2" data-in="note" placeholder="Anything we should know?">'+esc(v.note)+'</textarea></div>'}
+ h+='<div class="sum" id="sum"><b>'+esc(summary()[0])+'</b></div><div style="margin-top:14px"><button class="btn" style="width:100%" data-a="confirm">'+(s.act==='pay'?'Pay ৳2,000':s.act==='request'?'Send request':'Confirm')+'</button></div>';
+ $('#sheet').innerHTML=h}
+function closeSheet(){$('#ovl').hidden=true;SH=null}
+
+/* ===== LANGUAGE / AI toggles ===== */
+function setLang(l,quiet){S.lang=l;document.documentElement.lang=l;$$('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===l)});var L=U[l];
+ $('#q').placeholder=L.ph;$('#go').textContent=L.send;$('#stop').textContent=L.stop;$('#hMap').textContent=L.map;$('#hNow').textContent=L.now;$('#hMine').textContent=L.mine;$$('#mtabs button').forEach(function(b,i){b.textContent=L.tabs[i]});
+ $('#note').textContent=L.note;setAI(S.ai,true);drawNow();drawMine();drawMap()}
+function setAI(on,quiet){S.ai=on&&S.aiReady;var b=$('#smart');b.classList.toggle('on',S.ai);b.setAttribute('aria-pressed',S.ai);$('#smartTx').textContent=S.ai?U[S.lang].smartOn:U[S.lang].smartOff}
+var tT;function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(function(){t.classList.remove('show')},2800)}
+
+/* ===== EVENTS ===== */
+var A={
+ say:function(e){ask(e.dataset.t)},
+ show:function(e){var s=BY[e.dataset.id],l=S.lang;userMsg(nm(s,l));var b=botBubble(localReply([s],l,''));addCards(b.st,[s]);$('#q').value='';drawTA('');$('#app').dataset.v='chat';$$('#mtabs button').forEach(function(x){x.setAttribute('aria-selected',x.dataset.v==='chat')})},
+ act:function(e){openSheet(e.dataset.id)},
+ map:function(e){showOnMap([BY[e.dataset.id].zone]);if(window.matchMedia('(max-width:900px)').matches){$('#app').dataset.v='map';$$('#mtabs button').forEach(function(x){x.setAttribute('aria-selected',x.dataset.v==='map')})}},
+ call:function(e){var s=BY[e.dataset.id];toast('Calling '+s.dept+' on ext. '+s.ext+' (demo)')},
+ del:function(e){S.mine.splice(+e.dataset.i,1);drawMine()},
+ xs:closeSheet,
+ sv:function(e){var k=e.dataset.k,x=e.dataset.v;if(k==='ev')x=+x;if(k==='day'&&x==='Tonight')x='Today';SH.v[k]=x;if(k==='day'&&(SH.s.act==='table'||SH.s.act==='slot')){var sl=slotsFor(SH.s,x);SH.v.t=sl.filter(function(t){return !full(SH.s,x,t)})[0]||sl[0]}drawSheet()},
+ st:function(e){var k=e.dataset.k,v=SH.v[k]+ +e.dataset.d;SH.v[k]=Math.max(+e.dataset.min,Math.min(+e.dataset.max,v));drawSheet()},
+ tg:function(e){SH.v[e.dataset.k]=!SH.v[e.dataset.k];drawSheet()},
+ confirm:function(){var s=SH.s,sm=summary(),btn=$('#sheet [data-a="confirm"]');btn.disabled=true;btn.textContent=s.act==='pay'?'Contacting '+SH.v.method+'…':'Confirming…';
+   setTimeout(function(){if(!SH)return;SH.done=true;SH.ref=Math.floor(1000+Math.random()*9000);S.mine.unshift({ic:s.ico,t:sm[1].split(' · ')[0],w:sm[1].split(' · ').slice(1).join(' · ')||sm[1]});drawMine();drawSheet();
+     var b=botBubble('Done: '+sm[0]+'. Reference BCC-'+SH.ref+'. It is in My day.');addChips(b.st,[tt('follow')==='Anything else?'?'What\u2019s open now?':tt('chips')[2]])},reduce?0:900)}
+};
+document.addEventListener('click',function(e){var a=e.target.closest('[data-a]');if(!a)return;var f=A[a.dataset.a];if(f){f(a,e)}});
+document.addEventListener('input',function(e){var k=e.target.dataset.in;if(k&&SH){SH.v[k]=e.target.value}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#ovl').hidden)closeSheet()});
+$('#ovl').addEventListener('mousedown',function(e){if(e.target===this)closeSheet()});
+$$('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang)})});
+$$('#ft').forEach(function(){});
+['G','F','O'].forEach(function(f){var b=document.createElement('button');b.className='chip';b.dataset.f=f;b.textContent=FL[f].en;b.addEventListener('click',function(){S.floor=f;drawMap()});$('#ft').appendChild(b)});
+$$('#mtabs button').forEach(function(b){b.addEventListener('click',function(){$('#app').dataset.v=b.dataset.v;$$('#mtabs button').forEach(function(x){x.setAttribute('aria-selected',x===b)})})});
+$('#smart').addEventListener('click',function(){if(!S.aiReady){toast('Smart answers are not available here. Quick search is on.');return}setAI(!S.ai)});
+
+/* ===== START ===== */
+setLang('en');
+(function start(){var b=botBubble(U.en.hello);addChips(b.st,U.en.chips);
+ (async function(){try{var c=window.claude&&window.claude.use?await window.claude.use('sample'):null;if(c){window.__sample=c;S.aiReady=true;setAI(true)}}catch(e){}
+  setAI(S.aiReady);if(!S.aiReady)$('#smart').title='Smart answers are not available in this view'})();
+})();
+setInterval(function(){drawNow()},60000);
+})();
+</script>
+</body>
+</html>
